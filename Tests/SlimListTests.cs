@@ -90,5 +90,13 @@ namespace Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(42, 123));
             Assert.Throws<ArgumentOutOfRangeException>(() => slimList.Insert(42, 123));
         }
+
+        [Fact]
+        public void LinqTest()
+        {
+            var slimList = new SlimList<Int32> { 1, 2, 3, 42, 1337 };
+            var what = slimList.Where(x => x < 10);
+            Assert.Equal(new[] { 1, 2, 3 }, what);
+        }
     }
 }
