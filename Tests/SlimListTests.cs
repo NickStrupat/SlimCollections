@@ -87,6 +87,8 @@ namespace Tests
             list.Insert(0, 42);
             slimList.Insert(0, 42);
             Assert.Equal(list, slimList);
+            Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(42, 123));
+            Assert.Throws<ArgumentOutOfRangeException>(() => slimList.Insert(42, 123));
         }
     }
 }

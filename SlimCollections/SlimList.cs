@@ -133,7 +133,7 @@ namespace SlimCollections
         public void Insert(Int32 index, T item)
         {
             if (index > size)
-                throw new IndexOutOfRangeException();
+                throw new ArgumentOutOfRangeException();
             if (index == size)
             {
                 Add(item);
