@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SlimCollections
 {
-    public struct SlimList<T> : IList<T>, IEnumerator<T>
+    public struct SlimList<T> : IList<T>, IReadOnlyList<T>, IEnumerator<T>
     {
         private const Int32 StackItemCount = 10;
         private Int32 size;
