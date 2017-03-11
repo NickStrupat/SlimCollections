@@ -7,7 +7,7 @@ namespace SlimCollections
     public struct SlimList<T> : IList<T>, IReadOnlyList<T>, IEnumerator<T>
     {
         private const Int32 StackItemCount = 10;
-        private Int32 size;
+        private Int32 count;
 
         private T _0;
         private T _1;
@@ -24,13 +24,13 @@ namespace SlimCollections
 
         public T this[Int32 index] { get => GetItem(index); set => SetItem(index, value); }
 
-        public Int32 Count => size;
+        public Int32 Count => count;
 
         public Boolean IsReadOnly => false;
 
         public void Add(T item)
         {
-            switch (size)
+            switch (count)
             {
                 case 0: _0 = item; break;
                 case 1: _1 = item; break;
@@ -48,13 +48,13 @@ namespace SlimCollections
                     list.Add(item);
                     break;
             }
-            ++size;
+            ++count;
         }
 
         private T GetItem(Int32 index)
         {
-            if (index >= size)
-                throw new IndexOutOfRangeException();
+            if (index < 0 || index >= count)
+                throw new ArgumentOutOfRangeException(nameof(index));
             switch (index)
             {
                 case 0: return _0;
@@ -73,8 +73,8 @@ namespace SlimCollections
 
         private void SetItem(Int32 index, T value)
         {
-            if (index >= size)
-                throw new IndexOutOfRangeException();
+            if (index < 0 || index >= count)
+                throw new ArgumentOutOfRangeException(nameof(index));
             switch (index)
             {
                 case 0: _0 = value; break;
@@ -93,7 +93,7 @@ namespace SlimCollections
 
         public void Clear()
         {
-            size = 0;
+            count = 0;
             list = null;
         }
 
@@ -109,38 +109,29 @@ namespace SlimCollections
 
         public Boolean Contains(T item) => IndexOf(item) != -1;
 
-        public SlimList<T> GetEnumerator()              => this;
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()   => this;
-        IEnumerator IEnumerable.GetEnumerator()         => this;
-
-        public SlimList<T> Reverse() {
-            reverse = true;
-            return this;
-        }
-
         public void CopyTo(T[] array, Int32 arrayIndex)
         {
             if (array == null)
                 throw new NullReferenceException(nameof(array));
             if (arrayIndex < 0)
                 throw new ArgumentOutOfRangeException(nameof(arrayIndex));
-            if (size > array.Length - arrayIndex)
+            if (count > array.Length - arrayIndex)
                 throw new ArgumentException();
-            for (var i = 0; i != size; i++)
+            for (var i = 0; i != count; i++)
                 array[i + arrayIndex] = this[i];
         }
 
         public void Insert(Int32 index, T item)
         {
-            if (index > size)
-                throw new ArgumentOutOfRangeException();
-            if (index == size)
+            if (index < 0 || index > count)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            if (index == count)
             {
                 Add(item);
                 return;
             }
-            Add(this[size - 1]);
-            for (var i = index; i != size - 2; i++)
+            Add(this[count - 1]);
+            for (var i = index; i != count - 2; i++)
                 this[i + 1] = this[i];
             this[index] = item;
         }
@@ -156,24 +147,43 @@ namespace SlimCollections
 
         public void RemoveAt(Int32 index)
         {
-            if (index >= size)
+            if (index < 0 || index >= count)
                 throw new IndexOutOfRangeException();
-            for (var i = index; i != size - 1; i++)
+            for (var i = index; i != count - 1; i++)
                 this[i] = this[i + 1];
-            if (list != null && list.Count > 0)
+            if (list != null)
+                RemoveLast();
+            --count;
+        }
+
+        private void RemoveLast()
+        {
+            if (list.Count > 0)
                 list.RemoveAt(list.Count - 1);
             if (list.Count == 0)
                 list = null;
-            --size;
+        }
+
+        public SlimList<T> GetEnumerator()            => this;
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => this;
+        IEnumerator IEnumerable.GetEnumerator()       => this;
+
+        public SlimList<T> Reverse()
+        {
+            reverse = true;
+            return this;
         }
 
         private Int32 index;
         private Boolean reverse;
 
-        public T Current => GetItem(reverse ? (size - index) : (index - 1));
+        public T Current => GetItem(reverse ? (count - index) : (index - 1));
         Object IEnumerator.Current => Current;
-        public Boolean MoveNext() => index++ < size;
-        public void Reset() { index = 0; reverse = false; }
-        public void Dispose() {}
+        public Boolean MoveNext() => index++ < count;
+        public void Reset() {}
+        void IDisposable.Dispose() {
+            index = 0;
+            reverse = false;
+        }
     }
 }

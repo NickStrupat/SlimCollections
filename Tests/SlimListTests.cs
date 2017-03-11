@@ -14,24 +14,24 @@ namespace Tests
             var values = new [] { 0, 1 };
             var slimList = new SlimList<Int32>();
             Assert.Equal(0, slimList.Count);
-            Assert.Throws<IndexOutOfRangeException>(() => slimList[0]);
-            Assert.Throws<IndexOutOfRangeException>(() => slimList[1]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => slimList[0]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => slimList[1]);
 
             slimList.Add(values[0]);
             Assert.Equal(1, slimList.Count);
             Assert.Equal(values[0], slimList[0]);
-            Assert.Throws<IndexOutOfRangeException>(() => slimList[1]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => slimList[1]);
 
             slimList[0] = values[0] = 42;
             Assert.Equal(1, slimList.Count);
             Assert.Equal(values[0], slimList[0]);
-            Assert.Throws<IndexOutOfRangeException>(() => slimList[1]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => slimList[1]);
 
             slimList.Add(values[1]);
             Assert.Equal(2, slimList.Count);
             Assert.Equal(values[0], slimList[0]);
             Assert.Equal(values[1], slimList[1]);
-            Assert.Throws<IndexOutOfRangeException>(() => slimList[2]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => slimList[2]);
 
             var i = 0;
             foreach (var x in slimList)
@@ -50,6 +50,9 @@ namespace Tests
             var j = 0;
             foreach (var x in slimList)
                 Assert.Equal(values[j++], x);
+            j = 0;
+            foreach (var x in slimList)
+                Assert.Equal(values[j++], x);
             var k = 14;
             foreach (var x in ((IEnumerable<Int32>)slimList).Reverse())
                 Assert.Equal(values[k--], x);
@@ -61,8 +64,12 @@ namespace Tests
         [Fact]
         public void RemoveAtTest()
         {
-            var values = Enumerable.Range(0, 15).ToList();
             var slimList = new SlimList<Int32>();
+            slimList.Add(4321);
+            slimList.RemoveAt(0);
+            Assert.Equal(0, slimList.Count);
+
+            var values = Enumerable.Range(0, 15).ToList();
             foreach (var value in values)
                 slimList.Add(value);
             slimList.RemoveAt(5);
